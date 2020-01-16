@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Google CDN (Found on W3Schools) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Style.CSS File -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <title>Weather Dashboard</title>
+</head>
+
+<body>
+    <div class="grid-container">
+
+        <!-- Contains search area and current weather conditions -->
+        <div class="mainArea">
+
+            <div class="searchArea card container">
+
+                <!-- Search area -->
+                <h4>Enter Zip Code:</h4>
+                <p><input id="txtZipCode" type="text"></p>
+                <p><input class="searchButton" type="button" value="Search"></p>
+
+                <!-- Last searches -->
+                <div id="lastSearches"></div>
+            </div>
+
+            <!-- Current weather conditions -->
+            <div class="weatherArea card"></div>
+        </div>
+
+        <!-- 5-Day forecast -->
+        <div class="forecastArea">
+            <div class="forecast1"></div>
+            <div class="forecast2"></div>
+            <div class="forecast3"></div>
+            <div class="forecast4"></div>
+            <div class="forecast5"></div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="script.js"></script>
+</body>
+
+</html>
