@@ -1,5 +1,4 @@
-var myApiKey = "33ee13eb1ad0589899e3faf3934a18cd";
-//var myApiKey = "67dc1da0e87fc4309781f7ea819be879";
+var myApiKey = "67dc1da0e87fc4309781f7ea819be879";
 var WeatherAPI = "http://api.openweathermap.org/data/2.5/weather?zip={0},us&APPID={1}&units=imperial";
 var WeatherLocationAPI = "http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&APPID={2}&units=imperial";
 var ForecastAPI = "http://api.openweathermap.org/data/2.5/forecast?zip={0},us&APPID={1}&units=imperial";
@@ -23,15 +22,23 @@ if (!String.prototype.format) {
     };
 }
 
-function validateZipCode(elementValue){
+//When the page loads, we want to show last searches made by the user.
+//And immediately display their last search results.
+LoadLastSearches();
+DisplayLastSearch();
+GetLocation();
+
+function validateZipCode(elementValue) {
     var zipCodePattern = /^\d{5}$|^\d{5}-\d{4}$/;
-     return zipCodePattern.test(elementValue);
+    return zipCodePattern.test(elementValue);
 }
 
 function DisplayWeather() {
     var zipCode = $('#txtZipCode').val();
-    if (!validateZipCode(zipCode)) {return;}
+    if (!validateZipCode(zipCode)) { return; }
     GetWeather();
+    GetForecast();
+    SaveSearch();
 }
 
 function DisplayWeatherByLocation() {
@@ -39,10 +46,85 @@ function DisplayWeatherByLocation() {
     GetForecastByLocation();
 }
 
+function GetLocation() {
+    var lsLatitude = localStorage.getItem("latitude");
+    var lsLongitude = localStorage.getItem("longitude");
+    if (lsLatitude == null && lsLongitude == null) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(LoadWeatherByPosition);
+        } else {
+            //Geolocation is not supported by this browser.
+        }
+    }
+}
+
+function LoadWeatherByPosition(position) {
+    latitude = position.coords.latitude;
+    longitude = position.coords.longitude;
+    localStorage.setItem("longitude", longitude);
+    localStorage.setItem("latitude", latitude);
+    DisplayWeatherByLocation();
+}
+
+function DisplayLastSearch() {
+    //This checks the localStorage to see if it has an item with key weatherSearches
+    //If it does, it will populate the input textbox with the last search, and 
+    //display the weather for that zip code.
+    var searches = localStorage.getItem('weatherSearches');
+    if (searches != null) {
+        searches = searches.substring(0, searches.length - 1); //removing last ;
+        var values = searches.split(";");
+        $('#txtZipCode').val(values[values.length - 1]); //grabbing first element stored in localStorage
+        DisplayWeather();
+    }
+}
+
+function LoadLastSearches() {
+    //This loads last x amount of searches and displays them
+    //as clickable buttons that automatically show the weather
+    //for the selected zip code
+
+    var amountOfSearches = 8;
+    $('#lastSearches').empty();
+    var searches = localStorage.getItem('weatherSearches');
+    if (searches != null) {
+        $('#lastSearches').append("<h4>Last searches: </h4>");
+        searches = searches.substring(0, searches.length - 1);
+        var values = searches.split(";");
+        var count = 0;
+
+        for (i = values.length - 1; i >= 0; i--) {
+            if (count == amountOfSearches) { break; }
+            var x = values[i];
+            var btn = $("<input />", {
+                type: "button",
+                class: "lastSearchButton",
+                value: x,
+                onclick: "LastSearchButtonClick('" + x + "')"
+            });
+            $('#lastSearches').append(btn);
+            count++;
+        }
+    }
+}
+
 function LastSearchButtonClick(value) {
     //Populates zip code textbox and displays weather
     $('#txtZipCode').val(value);
     DisplayWeather();
+}
+
+function SaveSearch() {
+    //Saving current zip code search in localStorage
+    var zipCode = $('#txtZipCode').val();
+    var value = zipCode + ";";
+    var searches = localStorage.getItem('weatherSearches');
+    if (searches != null && searches.includes(zipCode)) {
+        searches = searches.replace(value, "");
+    }
+    var lsvalue = ((searches == null) ? value : searches + value);
+    localStorage.setItem("weatherSearches", lsvalue);
+    LoadLastSearches();
 }
 
 function OpenWeatherAPICurrentWeather() {
@@ -123,6 +205,58 @@ function DisplayWeatherResults(results) {
     disp.append(card);
 }
 
+function GetForecast() {
+    //Calls the forecast API, and parses the results
+    //then uses JQuery to generate HTML to populate the page
+
+    var apiURL = OpenWeatherAPIForecast();
+    $.getJSON(apiURL, function (results) {
+        //console.log(JSON.stringify(results));
+
+        DisplayForecastResults(results);
+    });
+}
+
+function GetForecastByLocation() {
+    var apiURL = OpenWeatherAPIForecastByLocation();
+    $.getJSON(apiURL, function (results) {
+        //console.log(JSON.stringify(results));
+
+        DisplayForecastResults(results);
+    });
+}
+
+function DisplayForecastResults(results) {
+    var list = results.list;
+
+    for (i = 0; i <= 4; i++) {
+        var k = 7 * i + i;
+        var dt = list[k].dt;
+        //var condition = list[k].weather[0].main;
+        //var description = list[k].weather[0].description;
+        var temperature = Math.round(list[k].main.temp, 0);
+        var humidity = list[k].main.humidity;
+        var icon = list[k].weather[0].icon;
+        var local_date = timeConverter(dt);
+
+        var thisForecast = i + 1;
+        var disp = $('.forecast' + thisForecast);
+        disp.empty();
+
+        var card = $("<div />").addClass("card");
+        var iconImg = $("<img />", {
+            src: GetIconURL(icon),
+        });
+        card.append(iconImg);
+        var container = $("<div />").addClass("container");
+        card.append(container);
+        container.append("<h4>" + local_date + "</h4>");
+        container.append("<p>" + temperature + String.fromCharCode(176) + "</p>");
+        container.append("<p>Humidity: " + humidity + "</p>");
+        disp.append(card);
+    }
+}
+
 function timeConverter(UNIX_timestamp) {
     //Since date from OpenWeatherAPI is provided in UTC milliseconds format,
     //this function will convert it to a readable date format
@@ -134,7 +268,6 @@ function timeConverter(UNIX_timestamp) {
     var hour = a.getHours();
     var min = a.getMinutes();
     var sec = a.getSeconds();
-    //var time = date + ' ' + month + ' ' + year;
     var time = month + ' ' + date + ' ' + year;
     return time;
 }

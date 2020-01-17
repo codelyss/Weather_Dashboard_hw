@@ -97,3 +97,24 @@ input[type=text] {
 .container {
     padding: 2px 16px;
 }
+
+.lastSearchButton {
+    display: inline-block;
+    padding: 0.35em 1.2em;
+    border: 0.1em solid #FFFFFF;
+    margin: 0 0.3em 0.3em 0;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    color: rgb(14, 13, 13);
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.lastSearchButton:hover {
+    color: #000000;
+    background-color: #FFFFFF;
+    cursor: pointer;
+}
