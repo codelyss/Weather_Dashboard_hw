@@ -1,9 +1,9 @@
 var myApiKey = "67dc1da0e87fc4309781f7ea819be879";
-var WeatherAPI = "http://api.openweathermap.org/data/2.5/weather?zip={0},us&APPID={1}&units=imperial";
-var WeatherLocationAPI = "http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&APPID={2}&units=imperial";
-var ForecastAPI = "http://api.openweathermap.org/data/2.5/forecast?zip={0},us&APPID={1}&units=imperial";
-var ForecastLocationAPI = "http://api.openweathermap.org/data/2.5/forecast?lat={0}&lon={1}&APPID={2}&units=imperial";
-var IconURL = "http://openweathermap.org/img/wn/{0}@2x.png";
+var WeatherAPI = "https://api.openweathermap.org/data/2.5/weather?zip={0},us&APPID={1}&units=imperial";
+var WeatherLocationAPI = "https://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&APPID={2}&units=imperial";
+var ForecastAPI = "https://api.openweathermap.org/data/2.5/forecast?zip={0},us&APPID={1}&units=imperial";
+var ForecastLocationAPI = "https://api.openweathermap.org/data/2.5/forecast?lat={0}&lon={1}&APPID={2}&units=imperial";
+var IconURL = "https://openweathermap.org/img/wn/{0}@2x.png";
 
 var latitude = 0;
 var longitude = 0;
